@@ -1,27 +1,45 @@
+const mainContainer = document.querySelector(".mainContainer");
+const cartBody = document.querySelector(".cartBody");
+const searchBtn = document.querySelector(".searchBtn");
+
 fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?f=a")
     .then(res => res.json())
-    .then(data => res(data))
+    .then(data => {
+        main(data.drinks);
+        searchBtn.addEventListener("click", () => {
+            const searchBar = document.querySelector(".searchBar");
+            const asked=searchBar.value.trim().toLowerCase();
+            const newData=data.drinks.filter(drink=>drink.strDrink.toLowerCase().includes(asked));
+            mainContainer.innerHTML="";
+            main(newData);
+        });
+    })
 
-const mainContainer = document.querySelector(".mainContainer");
-
-const cartBody = document.querySelector(".cartBody");
-
-const res = (data) => {
-    data.drinks.map((drink) => {
+const main = (data) => {
+    if(data.length===0){
+        mainContainer.html="";
+        const p=document.createElement("p");
+        p.innerText="No Drinks Found";
+        p.classList.add("fw-bold","mt-5","text-center");
+        mainContainer.appendChild(p);
+        return;
+    }
+    data.forEach((drink) => {
+        mainContainer.html="";
         const div = document.createElement("div");
 
         div.classList.add("col-12", "col-sm-6", "col-md-4", "col-lg-3");
         div.innerHTML = `<div class="card h-100">
   <img src=${drink.strDrinkThumb} class="card-img-top img-fluid" alt="...">
   <div class="card-body">
-    <h6 class="card-title">${drink.strGlass}</h6>
+    <h6 class="card-title">${drink.strDrink}</h6>
     <h6 class="card-subtitle"><span class="fw-bold">Category: </span>${drink.strCategory}</h6>
     <p class="card-text"><span class="fw-bold">Instructions:</span> ${drink.strInstructions.slice(0, 15)}...</p>
     <div class="d-flex justify-content-between">
     
-    <button class="btn btn-primary cartBtn">Add to Cart</a>
+    <button class="btn btn-primary cartBtn">Add to Cart</button>
     
-    <button class="btn btn-primary detailsBtn">Details</a>
+    <button class="btn btn-primary detailsBtn">Details</button>
     </div>
   </div>
 </div>`;
@@ -36,8 +54,8 @@ const res = (data) => {
                 return;
             }
             cart(drink);
-            cartBtn.disabled=true;
-            cartBtn.innerText="Added";
+            cartBtn.disabled = true;
+            cartBtn.innerText = "Added";
         });
 
         const detailsBtn = div.querySelector(".detailsBtn");
@@ -54,7 +72,7 @@ const cart = (newRow) => {
     row.innerHTML = `
         <th scope="row">${count.innerText}</th>
             <td class="w-50 h-50 rounded"><img src=${newRow.strDrinkThumb} class="img-fluid"/></td>
-        <td>${newRow.strGlass}</td>
+        <td>${newRow.strDrink}</td>
     `;
 
     cartBody.appendChild(row);
