@@ -1,6 +1,10 @@
-fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita")
+fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?f=a")
     .then(res => res.json())
     .then(data => res(data))
+
+const mainContainer = document.querySelector(".mainContainer");
+
+const cartBody = document.querySelector(".cartBody");
 
 const res = (data) => {
     data.drinks.map((drink) => {
@@ -15,7 +19,7 @@ const res = (data) => {
     <p class="card-text"><span class="fw-bold">Instructions:</span> ${drink.strInstructions.slice(0, 15)}...</p>
     <div class="d-flex justify-content-between">
     
-    <a href="#" class="btn btn-primary">Add to Cart</a>
+    <button class="btn btn-primary cartBtn">Add to Cart</a>
     
     <button class="btn btn-primary detailsBtn">Details</a>
     </div>
@@ -23,16 +27,43 @@ const res = (data) => {
 </div>`;
         mainContainer.appendChild(div);
 
+        const cartBtn = div.querySelector(".cartBtn");
+        cartBtn.addEventListener("click", () => {
+
+            const count = document.querySelector(".count");
+            if (Number(count.innerText) === 7) {
+                alert("Already 7 items added.");
+                return;
+            }
+            cart(drink);
+            cartBtn.disabled=true;
+            cartBtn.innerText="Added";
+        });
+
         const detailsBtn = div.querySelector(".detailsBtn");
         detailsBtn.addEventListener("click", () => modalOpen(drink));
     })
 }
 
-const mainContainer = document.querySelector(".mainContainer");
+const cart = (newRow) => {
+    const count = document.querySelector(".count");
+    const row = document.createElement("tr");
+
+    let current = Number(count.innerText) + 1;
+    count.innerText = current.toString();
+    row.innerHTML = `
+        <th scope="row">${count.innerText}</th>
+            <td class="w-50 h-50 rounded"><img src=${newRow.strDrinkThumb} class="img-fluid"/></td>
+        <td>${newRow.strGlass}</td>
+    `;
+
+    cartBody.appendChild(row);
+}
+
 
 const modalOpen = (drink) => {
-    const oldModal=document.getElementById("drinkModal");
-    if(oldModal)
+    const oldModal = document.getElementById("drinkModal");
+    if (oldModal)
         oldModal.remove();
     const div = document.createElement("div");
     div.innerHTML = `
@@ -65,3 +96,4 @@ const modalOpen = (drink) => {
 
     modal.show();
 }
+
